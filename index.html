@@ -2,69 +2,73 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Gacha Engine Pro</title>
+<title>Gacha Engine Pro (Optimized)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Kanit', sans-serif; background: #020510; color: white; height: 100vh; width: 100vw; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 
-  /* BG */
-  #dustCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 2s; }
+  /* BG - Optimized for Performance */
+  #dustCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 2s; will-change: opacity; }
   #dustCanvas.visible { opacity: 1; }
-  .vignette { position: fixed; inset: 0; z-index: 2; background: radial-gradient(circle at center, transparent 20%, #000000 120%); pointer-events: none; transition: box-shadow 1s; }
-  .vignette.ssr-crush { box-shadow: inset 0 0 150px rgba(233, 30, 99, 0.8); }
-  .vignette.secret-crush { box-shadow: inset 0 0 150px rgba(255, 215, 0, 0.8); }
-  .fog { position: fixed; left: 0; width: 100%; height: 30%; z-index: 3; pointer-events: none; }
+  .vignette { position: fixed; inset: 0; z-index: 2; background: radial-gradient(circle at center, transparent 20%, #000000 120%); pointer-events: none; transition: box-shadow 1s; will-change: box-shadow; }
+  .vignette.ssr-crush { box-shadow: inset 0 0 100px rgba(233, 30, 99, 0.6); } /* Reduced blur size */
+  .vignette.secret-crush { box-shadow: inset 0 0 100px rgba(255, 215, 0, 0.6); }
+  .fog { position: fixed; left: 0; width: 100%; height: 20%; z-index: 3; pointer-events: none; } /* Reduced height */
   .fog-top { top: 0; background: linear-gradient(to bottom, #020510, transparent); }
   .fog-bottom { bottom: 0; background: linear-gradient(to top, #020510, transparent); }
-  .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); z-index: 99; pointer-events: none; animation: grainAnim 0.5s steps(1) infinite; opacity: 0.3; }
+  
+  /* Grain Optimized */
+  .grain { position: fixed; inset: -50%; width: 200%; height: 200%; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); z-index: 99; pointer-events: none; animation: grainAnim 0.5s steps(1) infinite; opacity: 0.15; will-change: transform; }
   @keyframes grainAnim { 0%, 100% { transform: translate(0,0); } 10% { transform: translate(-5%,-10%); } 30% { transform: translate(7%,-25%); } 50% { transform: translate(-15%,10%); } 70% { transform: translate(0%,15%); } 90% { transform: translate(-10%,10%); } }
 
-  /* UI Top Bar (Glassmorphism) */
+  /* UI Top Bar */
   #ui-top { position: fixed; top: 10px; left: 10px; right: 10px; z-index: 60; display: flex; justify-content: space-between; align-items: center; opacity: 0; transition: opacity 1s 2.5s; }
   #ui-top.visible { opacity: 1; }
-  .ui-pill { background: rgba(10,10,10,0.8); backdrop-filter: blur(10px); border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
+  .ui-pill { background: rgba(10,10,10,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; will-change: border-color; }
   .ui-pill:hover { border-color: #00e5ff; }
+  .ui-pill:active { transform: scale(0.95); }
   .pity-bar-bg { width: 60px; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
   .pity-bar-fill { height: 100%; background: #00e5ff; transition: width 0.5s, background 0.5s; width: 0%; }
   .pity-bar-fill.hot { background: #f44336; }
 
   /* Stats Drawer */
-  #stats-drawer { position: fixed; bottom: 0; left: 0; right: 0; height: 250px; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); border-top: 1px solid #333; z-index: 200; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 20px 20px 0 0; padding: 20px; }
+  #stats-drawer { position: fixed; bottom: 0; left: 0; right: 0; height: 250px; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid #333; z-index: 200; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 20px 20px 0 0; padding: 20px; will-change: transform; }
   #stats-drawer.open { transform: translateY(0); }
   .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
   .stat-box { background: #111; padding: 10px; border-radius: 10px; text-align: center; }
   .stat-num { font-size: 24px; font-weight: 900; color: #00e5ff; }
   .stat-label { font-size: 11px; color: #888; margin-top: 5px; }
 
-  #ambient-glow { position: fixed; top: 50%; left: 50%; width: 150vmax; height: 150vmax; background: radial-gradient(circle, rgba(0,0,0,0) 0%, #000 70%); transform: translate(-50%, -50%); z-index: 4; pointer-events: none; transition: all 1.5s ease; opacity: 0; }
+  #ambient-glow { position: fixed; top: 50%; left: 50%; width: 150vmax; height: 150vmax; background: radial-gradient(circle, rgba(0,0,0,0) 0%, #000 70%); transform: translate(-50%, -50%); z-index: 4; pointer-events: none; transition: all 1.5s ease; opacity: 0; will-change: opacity, background; }
   #ambient-glow.ssr { opacity: 1; background: radial-gradient(circle, rgba(233,30,99,0.4) 0%, #000 70%); }
   #ambient-glow.secret { opacity: 1; background: radial-gradient(circle, rgba(255,215,0,0.5) 0%, #000 70%); }
   #ambient-glow.legend { opacity: 1; background: radial-gradient(circle, rgba(156,39,176,0.4) 0%, #000 70%); }
 
-  #flash { position: fixed; inset: 0; background: white; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.08s; }
+  #flash { position: fixed; inset: 0; background: white; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.08s; will-change: opacity; }
   #flash.active { opacity: 1; }
 
-  #summon-stage { position: relative; z-index: 10; transition: transform 0.2s ease-out; }
+  #summon-stage { position: relative; z-index: 10; transition: transform 0.1s ease-out; will-change: transform; } /* Faster transition for parallax */
 
-  .idle-ring { position: absolute; width: 140%; height: 140%; top: -20%; left: -20%; border-radius: 50%; pointer-events: none; background: conic-gradient(from 0deg, transparent 0%, #00e5ff 25%, transparent 50%, #2979ff 75%, transparent 100%); mask-image: radial-gradient(transparent 40%, black 42%, black 58%, transparent 60%); -webkit-mask-image: radial-gradient(transparent 40%, black 42%, black 58%, transparent 60%); animation: idleSpin 6s linear infinite; opacity: 0; transition: opacity 1s; }
+  /* Animation Optimizations */
+  .idle-ring { position: absolute; width: 140%; height: 140%; top: -20%; left: -20%; border-radius: 50%; pointer-events: none; background: conic-gradient(from 0deg, transparent 0%, #00e5ff 25%, transparent 50%, #2979ff 75%, transparent 100%); mask-image: radial-gradient(transparent 40%, black 42%, black 58%, transparent 60%); -webkit-mask-image: radial-gradient(transparent 40%, black 42%, black 58%, transparent 60%); animation: idleSpin 6s linear infinite; opacity: 0; transition: opacity 1s; will-change: transform, opacity; }
   .idle-ring.visible { opacity: 0.5; }
   @keyframes idleSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-  .magic-circle { width: min(80vw, 320px); height: min(80vw, 320px); position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.15)); }
+  .magic-circle { width: min(80vw, 320px); height: min(80vw, 320px); position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.15)); will-change: transform, filter; }
   .magic-circle.shaking { animation: shake 0.1s infinite; }
-  @keyframes shake { 0% { transform: translate(2px, 2px); } 25% { transform: translate(-2px, -1px); } 50% { transform: translate(-1px, 2px); } 75% { transform: translate(2px, -2px); } 100% { transform: translate(-2px, 1px); } }
+  @keyframes shake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-1px, -1px); } 50% { transform: translate(-1px, 1px); } 75% { transform: translate(1px, -1px); } 100% { transform: translate(-1px, 1px); } }
   .magic-circle.intro-zoom { animation: introZoomIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes introZoomIn { 0% { transform: scale(4); filter: blur(20px) brightness(2); opacity: 0; } 50% { filter: blur(5px) brightness(1.5); opacity: 1; } 100% { transform: scale(1); filter: blur(0px) brightness(1); opacity: 1; } }
 
-  .mc-ring { position: absolute; border-radius: 50%; border: 2px solid transparent; }
-  .mc-ring:nth-child(1) { inset: -15px; border: 1px solid rgba(0, 229, 255, 0.2); box-shadow: 0 0 40px rgba(0, 229, 255, 0.05); }
+  .mc-ring { position: absolute; border-radius: 50%; border: 2px solid transparent; will-change: transform, border-color; }
+  .mc-ring:nth-child(1) { inset: -15px; border: 1px solid rgba(0, 229, 255, 0.2); box-shadow: 0 0 20px rgba(0, 229, 255, 0.05); } /* Reduced shadow */
   .mc-ring:nth-child(2) { inset: 0; border-top-color: #00e5ff; border-bottom-color: #00e5ff; animation: spin 4s linear infinite; }
   .mc-ring:nth-child(3) { inset: 25px; border-left-color: #2979ff; border-right-color: #2979ff; animation: spin-rev 3s linear infinite; }
   .mc-ring:nth-child(4) { inset: 50px; border-top-color: #00e676; border-bottom-color: #00e676; border-style: dashed; animation: spin 5s linear infinite; }
-  .mc-core { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(0,229,255,0.15), transparent); box-shadow: 0 0 60px #00e5ff; z-index: 2; animation: corePulse 2.5s infinite; transition: transform 0.3s; }
-  .tap-text { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #00e5ff; letter-spacing: 4px; text-shadow: 0 0 10px #00e5ff; opacity: 0; white-space: nowrap; }
+  .mc-core { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(0,229,255,0.15), transparent); box-shadow: 0 0 30px #00e5ff; z-index: 2; animation: corePulse 2.5s infinite; transition: transform 0.3s; will-change: transform, box-shadow; }
+  .tap-text { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #00e5ff; letter-spacing: 4px; text-shadow: 0 0 10px #00e5ff; opacity: 0; white-space: nowrap; pointer-events: none; }
   .tap-text.idle { animation: fadeInOut 2.5s infinite; opacity: 1; }
 
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -72,55 +76,55 @@
   @keyframes corePulse { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } }
   @keyframes fadeInOut { 0%,100% { opacity: 0.2; } 50% { opacity: 0.8; } }
 
-  .casting .mc-ring { animation-duration: 0.2s !important; border-color: #fff !important; box-shadow: 0 0 50px #fff; }
-  .casting .mc-core { animation: none; background: white; box-shadow: 0 0 150px #fff; transform: scale(0.5); }
+  /* Use classes to trigger expensive styles */
+  .casting .mc-ring { animation-duration: 0.2s !important; border-color: #fff !important; box-shadow: 0 0 20px #fff; }
+  .casting .mc-core { animation: none; background: white; box-shadow: 0 0 80px #fff; transform: scale(0.5); }
   .casting .tap-text { display: none; }
   .casting ~ .idle-ring { opacity: 0 !important; }
   .imploding { animation: implode 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards !important; }
   @keyframes implode { 0% { transform: scale(0.5); filter: blur(10px); opacity: 1; } 100% { transform: scale(0); filter: blur(20px); opacity: 0; } }
 
   /* Card System */
-  #result-card { position: absolute; top: 50%; left: 50%; width: 250px; height: 360px; transform: translate(-50%, -50%) scale(0) rotateY(180deg); transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 50; cursor: pointer; opacity: 0; isolation: isolate; }
+  #result-card { position: absolute; top: 50%; left: 50%; width: 250px; height: 360px; transform: translate(-50%, -50%) scale(0) rotateY(180deg); transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 50; cursor: pointer; opacity: 0; isolation: isolate; will-change: transform, opacity; }
   #result-card.show { transform: translate(-50%, -50%) scale(1) rotateY(0deg) rotateX(0deg); opacity: 1; animation: floatIdle 3s ease-in-out 1.5s infinite; }
   @keyframes floatIdle { 0%,100% { transform: translate(-50%, -50%) scale(1) rotateY(0deg) translateY(0px); } 50% { transform: translate(-50%, -50%) scale(1) rotateY(0deg) translateY(-10px); } }
 
-  .card-aura { position: absolute; top: 50%; left: 50%; width: 350px; height: 350px; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, var(--aura-color, transparent) 0%, transparent 70%); filter: blur(30px); pointer-events: none; opacity: 0; z-index: -1; transition: opacity 0.5s; }
+  .card-aura { position: absolute; top: 50%; left: 50%; width: 350px; height: 350px; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, var(--aura-color, transparent) 0%, transparent 70%); filter: blur(30px); pointer-events: none; opacity: 0; z-index: -1; transition: opacity 0.5s; will-change: transform, opacity; }
   #result-card.show.tier-4 .card-aura { opacity: 0.6; --aura-color: #9c27b0; animation: auraPulse 2s infinite 1.2s; }
   #result-card.show.tier-5 .card-aura { opacity: 0.8; --aura-color: #e91e63; animation: auraPulse 2s infinite 1.2s; }
   #result-card.show.tier-6 .card-aura { opacity: 1; --aura-color: #ffd700; animation: auraPulse 2s infinite 1.2s; }
   @keyframes auraPulse { 0%,100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } }
 
-  .card-inner { width: 100%; height: 100%; background: #000; border-radius: 20px; border: 3px solid #333; box-shadow: 0 30px 80px rgba(0,0,0,1); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; transform-style: preserve-3d; transition: transform 0.3s ease-out, box-shadow 0.3s; }
-  .card-inner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,0,0,0.2) 0%, transparent 50%), radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0,255,0,0.2) 20%, transparent 60%), radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0,100,255,0.2) 40%, transparent 70%); mix-blend-mode: color-dodge; opacity: 0; transition: opacity 0.3s; z-index: 10; pointer-events: none; }
+  .card-inner { width: 100%; height: 100%; background: #000; border-radius: 20px; border: 3px solid #333; box-shadow: 0 30px 50px rgba(0,0,0,1); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; transform-style: preserve-3d; transition: transform 0.1s ease-out, box-shadow 0.3s; will-change: transform, box-shadow; }
+  .card-inner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.1) 0%, transparent 60%); mix-blend-mode: overlay; opacity: 0; transition: opacity 0.3s; z-index: 10; pointer-events: none; }
   #result-card.show .card-inner::before { opacity: 1; }
 
-  .card-visual { width: 160px; height: 160px; border-radius: 15px; border: 2px solid #fff; background: #111; display: flex; align-items: center; justify-content: center; font-size: 100px; z-index: 2; margin-bottom: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.5); transform: translateZ(20px); position: relative; }
+  .card-visual { width: 160px; height: 160px; border-radius: 15px; border: 2px solid #fff; background: #111; display: flex; align-items: center; justify-content: center; font-size: 80px; z-index: 2; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); transform: translateZ(20px); position: relative; overflow: hidden; }
   .card-visual img { width: 100%; height: 100%; object-fit: cover; border-radius: 13px; }
   
-  /* 5. Inner Card Particles */
   .inner-particle { position: absolute; width: 4px; height: 4px; background: white; border-radius: 50%; pointer-events: none; z-index: 3; opacity: 0; box-shadow: 0 0 5px currentColor; }
   #result-card.show.tier-4 .inner-particle, #result-card.show.tier-5 .inner-particle, #result-card.show.tier-6 .inner-particle { animation: innerFloat 3s infinite linear; opacity: 1; }
   @keyframes innerFloat { 0% { transform: translateY(0) scale(1); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-120px) scale(0); opacity: 0; } }
 
   .card-info { z-index: 2; text-align: center; transform: translateZ(40px); }
   .card-rar { font-size: 14px; letter-spacing: 4px; font-weight: 300; opacity: 0.8; height: 20px; }
-  .card-nam { font-size: 28px; font-weight: 900; margin-top: 5px; text-shadow: 0 0 20px currentColor; min-height: 40px; }
+  .card-nam { font-size: 24px; font-weight: 900; margin-top: 5px; text-shadow: 0 0 20px currentColor; min-height: 35px; }
   .cursor { display: inline-block; width: 2px; height: 1em; background: white; margin-left: 2px; animation: blink 0.5s step-end infinite; vertical-align: middle; }
   @keyframes blink { 50% { opacity: 0; } }
 
-  #result-card.tier-5 .card-inner { border-color: #e91e63; box-shadow: 0 0 80px #e91e6388, inset 0 0 20px rgba(0,0,0,1); }
-  #result-card.tier-6 .card-inner { border-color: #ffd700; box-shadow: 0 0 100px #ffd70088, inset 0 0 20px rgba(0,0,0,1); }
-  #result-card.tier-4 .card-inner { border-color: #9c27b0; box-shadow: 0 0 50px #9c27b088, inset 0 0 20px rgba(0,0,0,1); }
+  #result-card.tier-5 .card-inner { border-color: #e91e63; box-shadow: 0 0 50px #e91e6388, inset 0 0 10px rgba(0,0,0,1); }
+  #result-card.tier-6 .card-inner { border-color: #ffd700; box-shadow: 0 0 60px #ffd70088, inset 0 0 10px rgba(0,0,0,1); }
+  #result-card.tier-4 .card-inner { border-color: #9c27b0; box-shadow: 0 0 40px #9c27b088, inset 0 0 10px rgba(0,0,0,1); }
 
-  .orbit-ring { position: absolute; top: 50%; left: 50%; width: 320px; height: 320px; transform: translate(-50%, -50%); animation: orbitSpin 4s linear infinite; pointer-events: none; z-index: 60; opacity: 0; transition: opacity 0.5s; }
+  .orbit-ring { position: absolute; top: 50%; left: 50%; width: 320px; height: 320px; transform: translate(-50%, -50%); animation: orbitSpin 4s linear infinite; pointer-events: none; z-index: 60; opacity: 0; transition: opacity 0.5s; will-change: transform, opacity; }
   #result-card.show.tier-4 .orbit-ring, #result-card.show.tier-5 .orbit-ring, #result-card.show.tier-6 .orbit-ring { opacity: 1; }
-  .orbit-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: white; box-shadow: 0 0 10px white, 0 0 20px white; }
+  .orbit-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: white; box-shadow: 0 0 10px white; }
   .orbit-dot:nth-child(1) { top: 0; left: 50%; transform: translate(-50%, -50%); }
   .orbit-dot:nth-child(2) { bottom: 0; left: 50%; transform: translate(-50%, 50%); }
   .orbit-dot:nth-child(3) { top: 50%; left: 0; transform: translate(-50%, -50%); }
   @keyframes orbitSpin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
-  .reset-hint { position: fixed; bottom: 40px; font-size: 12px; color: #666; z-index: 60; animation: fadeInOut 2s infinite; display: none; letter-spacing: 2px; }
+  .reset-hint { position: fixed; bottom: 40px; font-size: 12px; color: #666; z-index: 60; animation: fadeInOut 2s infinite; display: none; letter-spacing: 2px; pointer-events: none; }
   .burst-p { position: fixed; border-radius: 50%; pointer-events: none; z-index: 90; }
 </style>
 </head>
@@ -163,12 +167,11 @@
     <div class="tap-text" id="tapText"></div>
   </div>
 
-  <div id="result-card" onmousemove="moveHolo(event)" ontouchmove="moveHolo(event)" onmouseleave="resetCardTilt()">
+  <div id="result-card" onmousemove="moveHolo(event)" ontouchmove="moveHolo(event)" onmouseleave="resetCardTilt()" onclick="resetGame()">
     <div class="card-aura"></div>
     <div class="orbit-ring"><div class="orbit-dot"></div><div class="orbit-dot"></div><div class="orbit-dot"></div></div>
     <div class="card-inner" id="cardInner">
       <div class="card-visual" id="cVisual">
-        <!-- 5. Inner Particles HTML -->
         <div class="inner-particle" style="left:20%; bottom:10px; animation-delay:0s; color:#fff;"></div>
         <div class="inner-particle" style="left:50%; bottom:20px; animation-delay:1s; color:#fff;"></div>
         <div class="inner-particle" style="left:80%; bottom:0px; animation-delay:2s; color:#fff;"></div>
@@ -182,233 +185,417 @@
   </div>
 </div>
 
-<div class="reset-hint" id="resetHint">TAP ANYWHERE TO CLOSE</div>
+<div class="reset-hint" id="resetHint">TAP CARD TO CLOSE</div>
 
 <script>
+  // Data Configuration
   const C = [
     { name:"ปลาเล็ก", rar:"ธรรมดา", ch:44, em:"🐟", col:"#4caf50", tier:1 },
     { name:"ปลาสีสด", rar:"ไม่ธรรมดา", ch:25, em:"🐠", col:"#2196f3", tier:2 },
     { name:"ปลาฉลาม", rar:"หายาก", ch:15, em:"🦈", col:"#ff9800", tier:3 },
     { name:"ปลาวาฬ", rar:"ตำนาน", ch:14, em:"🐋", col:"#9c27b0", tier:4 },
     { name:"กุ้งมหาศจรรย์", rar:"SSS", ch:2, em:"🦐", col:"#e91e63", tier:5 },
-    { name:"โม ลึกลับ", rar:"ซีเคร็ท", ch:1, em:"https://photos.fife.usercontent.google.com/pw/AP1GczMsGGv2cyulhdniQiUUKnIm9iPTudEfEzykeSQB4hZYTq0YOjeCwMXV=w1618-h911-s-no-gm?authuser=0", col:"#ffd700", tier:6 }
+    { name:"โม ลึกลับ", rar:"ซีเคร็ท", ch:1, em:"https://photos.fife.usercontent.google.com/pw/AP1GczMsGGv2cyulhdniQiUUKnIm9iPTudEfEzykeSQB4hZYTq0YOjeCwMXV=w1618-h911-s-no-gm?authuser=0", col:"#ffd700", tier:6, isImg:true }
   ];
 
-  let isBusy = false, isCardOpen = false, isIntroPlaying = true, pullCount = 0;
+  let isBusy = false, isCardOpen = false, isIntroPlaying = true;
   let inputX = 0, inputY = 0, dustReaction = 0;
+  let w = window.innerWidth, h = window.innerHeight;
   
   // === STATE SYSTEM ===
   let state = {
     pity: 0,
     inventory: [],
     stats: { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 },
-    lastDropColor: "77, 208, 225" // RGB for dust
+    lastDropColor: "77, 208, 225"
   };
 
-  // Audio
+  // === AUDIO SYSTEM ===
   let audioCtx;
   function getAudioCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
-  function playSynthCast() { const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(150, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 1.4); g.gain.setValueAtTime(0.2, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.4); o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 1.4); }
-  function playSynthReveal() { const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(800, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.2); g.gain.setValueAtTime(0.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3); o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.3); }
-  function playSynthSSS() { const ctx = getAudioCtx(); [523.25, 659.25, 783.99].forEach((f, i) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(f, ctx.currentTime); g.gain.setValueAtTime(0, ctx.currentTime + i*0.1); g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i*0.1 + 0.1); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2); o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + i*0.1); o.stop(ctx.currentTime + 2); }); }
-  function playSynthIntro() { const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(100, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 1); g.gain.setValueAtTime(0.15, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2); o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 1.2); }
-  function playBassRumble() { const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(50, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.4); g.gain.setValueAtTime(0.4, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4); o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4); }
-
-  // Parallax
-  function handleInput(e) { if(e.touches) { inputX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2; inputY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2; } else { inputX = (e.clientX / window.innerWidth - 0.5) * 2; inputY = (e.clientY / window.innerHeight - 0.5) * 2; } applyParallax(); }
-  if (window.DeviceOrientationEvent) { window.addEventListener('deviceorientation', (e) => { inputX = Math.max(-1, Math.min(1, (e.gamma || 0) / 30)); inputY = Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 30)); applyParallax(); }); }
-  window.addEventListener('mousemove', handleInput);
-  window.addEventListener('touchmove', handleInput, {passive: true});
-  function applyParallax() { if(isBusy || isCardOpen || isIntroPlaying) return; document.getElementById("summon-stage").style.transform = `translate(${-inputX * 15}px, ${-inputY * 15}px)`; }
-
-  // 3. Dynamic Color Dust
-  const canvas = document.getElementById('dustCanvas');
-  const ctxC = canvas.getContext('2d');
-  let dust = [];
-  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initDust(); }
-  function initDust() { dust = []; for(let i=0; i<100; i++) { dust.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2 + 0.5, dx: (Math.random() - 0.5) * 0.3, dy: -Math.random() * 0.4 - 0.1, o: Math.random() * 0.5 + 0.1 }); } }
-  function drawDust() { 
-    ctxC.clearRect(0, 0, canvas.width, canvas.height); 
-    ctxC.save(); ctxC.translate(inputX * -25, inputY * -25); 
-    
-    let col = dustReaction > 0 ? `rgba(255, ${150-dustReaction*10}, ${150-dustReaction*10}` : `rgba(${state.lastDropColor}`;
-    ctxC.fillStyle = col + ", 1)";
-    
-    dust.forEach(p => {
-      ctxC.globalAlpha = p.o; ctxC.beginPath(); ctxC.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctxC.fill();
-      if(dustReaction > 0) { let cx = canvas.width/2, cy = canvas.height/2; let angle = Math.atan2(p.y - cy, p.x - cx); p.dx += Math.cos(angle) * 0.5; p.dy += Math.sin(angle) * 0.5; }
-      p.x += p.dx; p.y += p.dy;
-      if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
-      if(p.x < -10 || p.x > canvas.width + 10) p.x = Math.random() * canvas.width;
-    });
-    if(dustReaction > 0) dustReaction -= 0.5;
-    ctxC.restore(); ctxC.globalAlpha = 1;
-    requestAnimationFrame(drawDust);
-  }
-  window.addEventListener('resize', resizeCanvas); resizeCanvas(); drawDust();
-
-  // Utility
-  function getR() { 
-    let r = Math.random()*100, t=0; 
-    // PITY SYSTEM LOGIC
-    if (state.pity >= 49) return C.filter(c => c.tier >= 5)[Math.floor(Math.random()*2)]; 
-    for(let c of C) { t += c.ch; if(r <= t) return c; } return C[0]; 
-  }
-  function setV(el, data) { el.innerHTML = data.startsWith("http") ? `<img src="${data}">` : data; }
-
-  function moveHolo(e) { let rect = document.getElementById('cardInner').getBoundingClientRect(); let x = ((e.clientX || e.touches[0].clientX) - rect.left) / rect.width * 100; let y = ((e.clientY || e.touches[0].clientY) - rect.top) / rect.height * 100; document.getElementById('cardInner').style.setProperty('--mx', x + '%'); document.getElementById('cardInner').style.setProperty('--my', y + '%'); let rotX = (y - 50) * -0.3; let rotY = (x - 50) * 0.3; document.getElementById('cardInner').style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`; }
-  function resetCardTilt() { document.getElementById('cardInner').style.transform = `rotateX(0deg) rotateY(0deg)`; }
-
-  function typeText(el, text, speed, callback) { el.innerHTML = '<span class="cursor"></span>'; let i = 0; let interval = setInterval(() => { el.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>'; i++; if (i === text.length) { clearInterval(interval); setTimeout(() => { el.innerHTML = text; if(callback) callback(); }, 1000); } }, speed); }
-  function createBurst(color, count) { let cx = window.innerWidth/2, cy = window.innerHeight/2; for(let i=0; i<count; i++) { let p = document.createElement("div"); p.className = "burst-p"; p.style.background = color; p.style.width = (Math.random()*10+4)+"px"; p.style.height = p.style.width; p.style.left = cx+"px"; p.style.top = cy+"px"; p.style.boxShadow = `0 0 15px ${color}`; let angle = (Math.PI * 2 / count) * i; let dist = Math.random()*300 + 100; let tx = Math.cos(angle)*dist, ty = Math.sin(angle)*dist; p.style.transition = `all ${Math.random()*0.6+0.6}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`; document.body.appendChild(p); p.offsetWidth; p.style.transform = `translate(${tx}px, ${ty}px)`; p.style.opacity = '0'; setTimeout(() => p.remove(), 1200); } }
   
-  // === UI UPDATE FUNCTIONS ===
-  function updateUI(res) {
-    document.getElementById('invCount').innerText = state.inventory.length;
+  function playSynthCast() { 
+    try {
+      const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); 
+      o.type = 'sine'; o.frequency.setValueAtTime(150, ctx.currentTime); 
+      o.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 1.4); 
+      g.gain.setValueAtTime(0.2, ctx.currentTime); 
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.4); 
+      o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 1.4); 
+    } catch(e) {}
+  }
+  
+  function playSynthReveal() { 
+    try {
+      const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); 
+      o.type = 'triangle'; o.frequency.setValueAtTime(800, ctx.currentTime); 
+      o.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.2); 
+      g.gain.setValueAtTime(0.3, ctx.currentTime); 
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3); 
+      o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.3); 
+    } catch(e) {}
+  }
+  
+  function playSynthSSS() { 
+    try {
+      const ctx = getAudioCtx(); [523.25, 659.25, 783.99].forEach((f, i) => { 
+        const o = ctx.createOscillator(); const g = ctx.createGain(); 
+        o.type = 'sine'; o.frequency.setValueAtTime(f, ctx.currentTime); 
+        g.gain.setValueAtTime(0, ctx.currentTime + i*0.1); 
+        g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i*0.1 + 0.1); 
+        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2); 
+        o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + i*0.1); o.stop(ctx.currentTime + 2); 
+      }); 
+    } catch(e) {}
+  }
+
+  function playSynthIntro() { 
+    try {
+      const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); 
+      o.type = 'sine'; o.frequency.setValueAtTime(100, ctx.currentTime); 
+      o.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 1); 
+      g.gain.setValueAtTime(0.15, ctx.currentTime); 
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2); 
+      o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 1.2); 
+    } catch(e) {}
+  }
+  
+  function playBassRumble() { 
+    try {
+      const ctx = getAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain(); 
+      o.type = 'sine'; o.frequency.setValueAtTime(50, ctx.currentTime); 
+      o.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.4); 
+      g.gain.setValueAtTime(0.4, ctx.currentTime); 
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4); 
+      o.connect(g).connect(ctx.destination); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4); 
+    } catch(e) {}
+  }
+
+  // === PARALLAX & INPUT (Throttled for Mobile Performance) ===
+  let lastInputTime = 0;
+  const inputThrottle = 16; // ~60fps limit
+
+  function handleInput(e) {
+    const now = Date.now();
+    if (now - lastInputTime < inputThrottle) return;
+    lastInputTime = now;
+
+    if(e.touches) {
+      inputX = (e.touches[0].clientX / w - 0.5) * 2; 
+      inputY = (e.touches[0].clientY / h - 0.5) * 2; 
+    } else {
+      inputX = (e.clientX / w - 0.5) * 2; 
+      inputY = (e.clientY / h - 0.5) * 2; 
+    }
+
+    // Parallax Effect
+    const stage = document.getElementById('summon-stage');
+    if(!isCardOpen && !isBusy) {
+      stage.style.transform = `perspective(1000px) rotateY(${inputX * 5}deg) rotateX(${-inputY * 5}deg)`;
+    }
+  }
+
+  window.addEventListener('mousemove', handleInput);
+  window.addEventListener('touchmove', handleInput, { passive: true });
+
+  function moveHolo(e) {
+    if(!isCardOpen) return;
+    const rect = document.getElementById('result-card').getBoundingClientRect();
+    let cx, cy;
+    if(e.touches) {
+      cx = e.touches[0].clientX - rect.left;
+      cy = e.touches[0].clientY - rect.top;
+    } else {
+      cx = e.clientX - rect.left;
+      cy = e.clientY - rect.top;
+    }
+    
+    const mx = (cx / rect.width) * 100;
+    const my = (cy / rect.height) * 100;
+    
+    document.getElementById('cardInner').style.setProperty('--mx', mx + '%');
+    document.getElementById('cardInner').style.setProperty('--my', my + '%');
+    
+    // Tilt effect
+    const rotX = (cy / rect.height - 0.5) * -20;
+    const rotY = (cx / rect.width - 0.5) * 20;
+    document.getElementById('cardInner').style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+  }
+
+  function resetCardTilt() {
+    if(!isCardOpen) return;
+    document.getElementById('cardInner').style.transform = `rotateX(0deg) rotateY(0deg)`;
+  }
+
+  // === DUST CANVAS SYSTEM (Optimized) ===
+  const canvas = document.getElementById('dustCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  // Reduce particles on mobile to prevent lag
+  const maxParticles = window.innerWidth < 768 ? 50 : 120; 
+
+  function resizeCanvas() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w;
+    canvas.height = h;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * w;
+      this.y = Math.random() * h;
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = (Math.random() - 0.5) * 0.5;
+      this.size = Math.random() * 2;
+      this.alpha = Math.random() * 0.5 + 0.1;
+      this.color = state.lastDropColor;
+    }
+    update() {
+      this.x += this.vx - (inputX * 2); // React to input slightly
+      this.y += this.vy - (inputY * 2);
+      
+      if(this.x < 0) this.x = w;
+      if(this.x > w) this.x = 0;
+      if(this.y < 0) this.y = h;
+      if(this.y > h) this.y = 0;
+    }
+    draw() {
+      ctx.fillStyle = `rgba(${this.color},${this.alpha})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function initParticles() {
+    particles = [];
+    for(let i=0; i<maxParticles; i++) particles.push(new Particle());
+  }
+
+  function loopDust() {
+    if(!isIntroPlaying) {
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+    }
+    requestAnimationFrame(loopDust);
+  }
+
+  // === GAME LOGIC ===
+
+  function updateUI() {
+    // Pity
     document.getElementById('pityText').innerText = `Pity: ${state.pity}/50`;
-    let bar = document.getElementById('pityBar');
-    bar.style.width = (state.pity/50*100)+'%';
-    bar.className = state.pity >= 40 ? 'pity-bar-fill hot' : 'pity-bar-fill';
+    const pct = (state.pity / 50) * 100;
+    const pBar = document.getElementById('pityBar');
+    pBar.style.width = `${pct}%`;
+    if(state.pity >= 40) pBar.classList.add('hot');
+    else pBar.classList.remove('hot');
+
+    // Inventory
+    document.getElementById('invCount').innerText = state.inventory.length;
 
     // Stats
-    document.getElementById('sTotal').innerText = pullCount;
-    document.getElementById('sSsr').innerText = ((state.stats[5]/pullCount)*100).toFixed(1)+'%';
-    document.getElementById('sLegend').innerText = ((state.stats[4]/pullCount)*100).toFixed(1)+'%';
-    document.getElementById('sRare').innerText = ((state.stats[3]/pullCount)*100).toFixed(1)+'%';
-    document.getElementById('sNormal').innerText = (((state.stats[1]+state.stats[2])/pullCount)*100).toFixed(1)+'%';
+    const total = state.inventory.length || 1;
+    document.getElementById('sTotal').innerText = state.inventory.length;
+    document.getElementById('sSsr').innerText = state.stats[5];
+    document.getElementById('sLegend').innerText = state.stats[4];
+    document.getElementById('sRare').innerText = state.stats[3];
+    document.getElementById('sNormal').innerText = state.stats[1] + state.stats[2];
     document.getElementById('sSecret').innerText = state.stats[6];
   }
 
-  function toggleDrawer() { document.getElementById('stats-drawer').classList.toggle('open'); }
-
-  // INTRO
-  function playIntro() {
-    const circle = document.getElementById("magicCircle");
-    playSynthIntro();
-    setTimeout(() => {
-      document.getElementById("flash").classList.add("active");
-      setTimeout(() => document.getElementById("flash").classList.remove("active"), 100);
-      setTimeout(() => {
-        circle.classList.add("intro-zoom");
-        document.getElementById("dustCanvas").classList.add("visible");
-        setTimeout(() => {
-          circle.classList.remove("intro-zoom"); circle.style.transform = '';
-          typeText(document.getElementById("tapText"), "TAP TO SUMMON", 80, () => {
-            document.getElementById("tapText").classList.add("idle");
-            document.getElementById("idleRing").classList.add("visible");
-            document.getElementById("ui-top").classList.add("visible");
-            isIntroPlaying = false;
-            applyParallax();
-          });
-        }, 1500);
-      }, 200);
-    }, 500);
+  function toggleDrawer() {
+    document.getElementById('stats-drawer').classList.toggle('open');
   }
-  window.onload = playIntro;
 
-  // MAIN LOGIC
+  function getResult() {
+    state.pity++;
+    if(state.pity >= 50) {
+      // Pity SSS
+      state.pity = 0;
+      return C.find(c => c.tier === 5);
+    }
+
+    const r = Math.random() * 100;
+    let acc = 0;
+    for(let c of C) {
+      acc += c.ch;
+      if(r < acc) return c;
+    }
+    return C[0];
+  }
+
+  function typeText(element, text) {
+    element.innerHTML = "";
+    let i = 0;
+    const cursor = '<span class="cursor"></span>';
+    element.innerHTML = cursor;
+    
+    const interval = setInterval(() => {
+      element.innerHTML = text.substring(0, i) + cursor;
+      i++;
+      if(i > text.length) {
+        clearInterval(interval);
+        element.innerHTML = text; // Remove cursor
+      }
+    }, 30);
+  }
+
   function startCast() {
-    if(isBusy || isIntroPlaying) return;
-    isBusy = true; pullCount++;
-    state.pity = Math.min(state.pity + 1, 50); // Increment Pity
+    if(isBusy || isCardOpen) return;
+    isBusy = true;
     
-    const circle = document.getElementById("magicCircle");
-    const stage = document.getElementById("summon-stage");
-    const ambient = document.getElementById("ambient-glow");
-    const vignette = document.getElementById("vignette");
-    
-    stage.style.transform = 'translate(0,0)'; 
-    ambient.className = ''; vignette.className = 'vignette'; // Reset Vignette
+    // Audio
     playSynthCast();
-    
-    circle.classList.add("casting", "shaking");
-    document.getElementById("tapText").style.display = "none";
-    document.getElementById("stats-drawer").classList.remove('open'); // Close stats on pull
-    if(navigator.vibrate) navigator.vibrate(50);
+
+    // Visuals
+    const mc = document.getElementById('magicCircle');
+    mc.classList.remove('intro-zoom');
+    mc.classList.add('shaking');
+    document.getElementById('idleRing').style.opacity = '0';
 
     setTimeout(() => {
-      playBassRumble();
+      mc.classList.remove('shaking');
+      mc.classList.add('casting');
+      
+      // Flash & Camera Shake
+      const flash = document.getElementById('flash');
+      flash.classList.add('active');
+      setTimeout(() => flash.classList.remove('active'), 80);
+      
+      // Implode
       setTimeout(() => {
-        circle.classList.remove("shaking"); 
-        document.getElementById("flash").classList.add("active");
-        setTimeout(() => document.getElementById("flash").classList.remove("active"), 100);
-        
-        let res = getR();
-        if(res.tier >= 5) { setTimeout(() => { document.getElementById("flash").classList.add("active"); setTimeout(() => document.getElementById("flash").classList.remove("active"), 100); }, 200); }
+        mc.classList.add('imploding');
+        playBassRumble();
         
         setTimeout(() => {
-          circle.style.transform = ''; circle.classList.remove("casting"); circle.classList.add("imploding");
-          
-          // 3. Change Dust Color to match drop
-          if(res.tier >= 4) state.lastDropColor = res.col.replace('#','').match(/.{2}/g).join(', ');
-          else state.lastDropColor = "77, 208, 225";
-          
-          // 4. Vignette Crush Effect
-          if(res.tier === 6) vignette.className = 'vignette secret-crush';
-          else if(res.tier === 5) vignette.className = 'vignette ssr-crush';
-          
-          const card = document.getElementById("result-card");
-          setV(document.getElementById("cVisual"), res.em);
-          document.getElementById("cRar").innerText = res.rar;
-          document.getElementById("cRar").style.color = res.col;
-          card.className = `tier-${res.tier}`;
-          
-          // 5. Change Inner Particle Colors
-          document.querySelectorAll('.inner-particle').forEach(p => p.style.color = res.col);
-          
-          if(res.tier === 6) ambient.className = 'secret';
-          else if(res.tier === 5) ambient.className = 'ssr';
-          else if(res.tier === 4) ambient.className = 'legend';
+          revealResult();
+        }, 400);
+      }, 1000);
 
-          setTimeout(() => {
-            card.classList.add("show"); isCardOpen = true; 
-            document.getElementById("resetHint").style.display = "block";
-            document.getElementById("cNam").style.color = res.col;
-            document.getElementById("cardInner").style.transform = `rotateX(0deg) rotateY(0deg)`;
-            
-            // State Updates
-            if(res.tier >= 5) state.pity = 0; // Reset Pity on SSR
-            state.inventory.push(res.tier);
-            state.stats[res.tier]++;
-            updateUI(res);
-            
-            if(res.tier >= 5) { playSynthSSS(); if(navigator.vibrate) navigator.vibrate([200, 100, 400]); dustReaction = 10; createBurst(res.col, 60); typeText(document.getElementById("cNam"), res.name, 100); }
-            else if(res.tier >= 3) { playSynthReveal(); dustReaction = 3; typeText(document.getElementById("cNam"), res.name, 70); }
-            else { playSynthReveal(); document.getElementById("cNam").innerText = res.name; }
-          }, 400);
-        }, 300);
-      }, 300);
     }, 1500);
   }
 
-  document.body.addEventListener('click', (e) => { 
-    if(!isCardOpen) return; 
-    if(e.target.closest('.magic-circle')) return; 
-    if(e.target.closest('#ui-top')) return;
-    resetCardTilt(); resetStage(); 
-  });
+  function revealResult() {
+    const res = getResult();
+    state.inventory.push(res);
+    state.stats[res.tier]++;
+    
+    // Convert hex to rgb for particles
+    const hex = res.col.replace('#','');
+    const r = parseInt(hex.substring(0,2), 16);
+    const g = parseInt(hex.substring(2,4), 16);
+    const b = parseInt(hex.substring(4,6), 16);
+    state.lastDropColor = `${r},${g},${b}`;
 
-  function resetStage() {
-    const circle = document.getElementById("magicCircle");
-    const card = document.getElementById("result-card");
-    const ambient = document.getElementById("ambient-glow");
-    const vignette = document.getElementById("vignette");
+    // Reset particles color
+    particles.forEach(p => p.color = state.lastDropColor);
+    document.getElementById('dustCanvas').classList.add('visible');
+
+    // Ambient Glow
+    const ag = document.getElementById('ambient-glow');
+    ag.className = '';
+    if(res.tier >= 4) ag.classList.add('legend');
+    if(res.tier >= 5) ag.classList.add('ssr');
+    if(res.tier >= 6) ag.classList.add('secret');
+
+    // Vignette
+    const vig = document.getElementById('vignette');
+    vig.className = 'vignette';
+    if(res.tier >= 5) vig.classList.add('ssr-crush');
+    if(res.tier >= 6) vig.classList.add('secret-crush');
+
+    // Card Setup
+    const card = document.getElementById('result-card');
+    card.className = ''; // Reset
+    card.classList.add(`tier-${res.tier}`);
     
-    isCardOpen = false;
-    card.classList.remove("show");
-    document.getElementById("resetHint").style.display = "none";
-    vignette.className = 'vignette'; // Reset crush
+    // Content
+    const visual = document.getElementById('cVisual');
+    if(res.isImg) {
+      visual.innerHTML = `<img src="${res.em}" alt="Secret">`;
+    } else {
+      visual.innerHTML = res.em;
+      visual.style.fontSize = "80px";
+    }
     
+    document.getElementById('cRar').innerText = res.rar;
+    document.getElementById('cRar').style.color = res.col;
+    typeText(document.getElementById('cNam'), res.name);
+
+    // Audio
+    if(res.tier >= 5) playSynthSSS();
+    else playSynthReveal();
+
+    // Show
+    card.classList.add('show');
+    isCardOpen = true;
+    isBusy = false;
+    
+    // Hide Circle
+    document.getElementById('magicCircle').style.display = 'none';
+    document.getElementById('resetHint').style.display = 'block';
+
+    updateUI();
+  }
+
+  function resetGame() {
+    if(!isCardOpen) return;
+    
+    // Close Drawer
+    document.getElementById('stats-drawer').classList.remove('open');
+
+    // Hide Card
+    const card = document.getElementById('result-card');
+    card.classList.remove('show');
+    
+    // Reset Visuals
     setTimeout(() => {
-      ambient.className = '';
-      circle.classList.remove("casting", "imploding");
-      circle.style.transform = ''; circle.style.opacity = '1'; 
-      document.getElementById("tapText").style.display = "block";
-      document.getElementById("idleRing").classList.add("visible");
-      isBusy = false;
-      applyParallax(); 
+      isCardOpen = false;
+      document.getElementById('resetHint').style.display = 'none';
+      
+      const mc = document.getElementById('magicCircle');
+      mc.style.display = 'flex';
+      mc.className = 'magic-circle intro-zoom'; // Re-animate in
+      
+      document.getElementById('ambient-glow').className = '';
+      document.getElementById('vignette').className = 'vignette';
+      
+      // Reset Card Inner Content for next time
+      document.getElementById('cVisual').innerHTML = '❓';
+      document.getElementById('cRar').innerText = 'RARITY';
+      document.getElementById('cNam').innerText = '';
+      
     }, 500);
   }
+
+  // === INIT ===
+  window.onload = () => {
+    initParticles();
+    loopDust();
+    
+    // Intro Animation
+    setTimeout(() => {
+      playSynthIntro();
+      document.getElementById('magicCircle').classList.add('intro-zoom');
+      document.getElementById('tapText').classList.add('idle');
+      document.getElementById('idleRing').classList.add('visible');
+      document.getElementById('ui-top').classList.add('visible');
+      isIntroPlaying = false;
+    }, 500);
+
+    updateUI();
+  };
+
 </script>
 </body>
 </html>
